@@ -158,7 +158,8 @@ async function main() {
         }
     } while (!solved && round <= 6);
 
-    console.log(`Wordle TDY ${solved ? round : 'X'}/6*\n`);
+    const title = args.word ? "USR" : (args.nyt ? 'NYT' : 'ANY');
+    console.log(`Wordle ${title} ${solved ? round : 'X'}/6*\n`);
     console.log(grid.map(guess => `${guess}\n`).join(''));
 
     if (solved) {

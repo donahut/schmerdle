@@ -8,7 +8,7 @@ function validate() {
     const args = require('minimist')(process.argv.slice(2));
 
     if (args.verbose && typeof args.verbose !== 'boolean') {
-        console.error("Provided --verbose flag must be boolean");
+        console.error("Provided --verbose flag must be a boolean");
         process.exit();
     }
 
@@ -17,9 +17,34 @@ function validate() {
         process.exit();
     } */
 
-    if (args.word && typeof args.word !== 'string') {
-        console.error("Provided --word must be of type string");
-        process.exit();
+    if (args.word) {
+        if (typeof args.word !== 'string') {
+            console.error("Provided --word must be a string");
+            process.exit();
+        } else if (args.word.length !== 5) {
+            console.error("Provided --word must be a 5-letter word");
+            process.exit();
+        }
+        args.word = args.word.toLowerCase();
+    }
+
+    if (args.replay) {
+        if (typeof args.replay !== 'string') {
+            console.error("Provided --replay must be a comma-separated string");
+            process.exit();
+        } else if (!args.word) {
+            console.error("Providing --replay requires --word as well");
+            process.exit();
+        }
+        args.replay = args.replay.toLowerCase().split(',');
+        if (!args.replay.every(word => word.length === 5)) {
+            console.error("Provided --replay must all be 5-letter words");
+            process.exit();
+        }
+        if (args.replay.length < 6 && args.word != args.replay[args.replay.length - 1]) {
+            console.error("Provided --replay doesn't align with --word");
+            process.exit();
+        }
     }
 
     /* if (args.word && args.nyt) {
@@ -46,8 +71,8 @@ async function retrieveSecret(args, fivers) {
     return fivers[Math.floor(Math.random() * fivers.length)];
 }
 
-function makeGuess(fivers, round) {
-    return fivers[Math.floor(Math.random() * fivers.length)];
+function makeGuess(fivers, replay) {
+    return replay || fivers[Math.floor(Math.random() * fivers.length)];
 }
 
 function generateFeedback(secret, guess) {
@@ -123,19 +148,20 @@ async function main() {
 
     // Initialize game state
     const grid = [];
-    let graveyard = [];
+    const graveyard = new Set();
     let solved = false;
     let round = 1;
+    let replay = args.replay || [];
 
     do {
-        const guess = makeGuess(fivers, round);
+        const guess = makeGuess(fivers, replay.shift());
         if (args.verbose)
             console.log(`🤔 ${guess}`);
 
             // Generate feedback and grid
-        const { greens, yellows, blacks } =  generateFeedback(secret, guess);
+        const { greens, yellows, blacks } = generateFeedback(secret, guess);
         grid.push(greens.map((green, i) => green ? '🟩' : (yellows[i] ? '🟨' : '⬜')).join(''));
-        graveyard.push(...blacks);
+        blacks.forEach(letter => graveyard.add(letter));
 
         if (args.verbose) {
             console.log(grid[grid.length - 1]);
@@ -147,8 +173,8 @@ async function main() {
             // Prune all words from guess pool that are incompatible with the feedback
             fivers =  pruneWordlist(fivers, greens, yellows, blacks);
             if (args.verbose) {
-                console.log(`💀 ${graveyard}`);
-                console.log('🗃️');
+                console.log(`💀 ${Array.from(graveyard)}`);
+                console.log(`🗃️  ${fivers.length}`);
                 console.log(fivers);
             }
             round++;

@@ -80,6 +80,7 @@ function generateFeedback(secret, guess) {
     const greens = Array(5).fill();
     const yellows = Array(5).fill();
     const blacks = new Set(guess);
+
     // Find all greens
     for (let i = 0; i < secret.length; i++) {
         if (secret[i] === guess[i]) {
@@ -88,7 +89,6 @@ function generateFeedback(secret, guess) {
             blacks.delete(guess[i]);
         }
     }
-    //console.log(`L:${letters}-B:${Array.from(blacks)}`)
     // Find all yellows
     for (let i = 0; i < secret.length; i++) {
         if (!greens[i] && letters.includes(guess[i])) {
@@ -97,7 +97,7 @@ function generateFeedback(secret, guess) {
             blacks.delete(guess[i]);
         }
     }
-    //console.log(`G:${greens}-Y:${yellows}-B:${Array.from(blacks)}`);
+
     return {
         greens: greens,
         yellows: yellows,

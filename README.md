@@ -18,6 +18,7 @@ Schmerdle will also help you analyze how your game went, if you ask him nicely.
 - Schmerdle can't play the official Wordle of the Day (yet)
   - You can tell him it though, if you want (don't worry he wont cheat)
 - Schmerdle treats all words equally and doesn't play favorites or do fancy things like "apply heuristics"
+- Schmerdle plays "Hard Mode" style, 'cause that's all he knows
 
 ## How can I hang with Schmerdle, too?
 
